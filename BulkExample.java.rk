@@ -1,5 +1,3 @@
-/* Author : Rangesh Kona
-*/
 import java.io.*;
 import java.util.*;
 
@@ -14,7 +12,6 @@ public class BulkExample{
 	public static void main(String[] args) throws AsyncApiException, ConnectionException, IOException {
 
 		BulkExample example = new BulkExample();
-	        example.runSample("Account", "rangeshsecure@gmail.com", "Layout$1234", "mySampleData.csv");
 		
 	}
 
@@ -113,7 +110,7 @@ public class BulkExample{
 	    ConnectorConfig partnerConfig = new ConnectorConfig();
 	    partnerConfig.setUsername(userName);
 	    partnerConfig.setPassword(password);
-	    partnerConfig.setAuthEndpoint("https://rangesh-dev-ed.my.salesforce.com/services/Soap/u/41.0");
+	    partnerConfig.setAuthEndpoint("http://login.salesforce.com/services/Soap/u/41.0");
 	    new PartnerConnection(partnerConfig);
 	    ConnectorConfig config = new ConnectorConfig();
 	    config.setSessionId(partnerConfig.getSessionId());
@@ -141,7 +138,7 @@ public class BulkExample{
 	   try {
 	      FileOutputStream tmpOut = new FileOutputStream(tmpFile);
 	      int maxBytesPerBatch    = 1000000; 
-	      int maxRowsPerBatch		= 2;
+	      int maxRowsPerBatch		= 10000;
 	   	int currentBytes 		= 0;
 	   	int currentLines		= 0;
 	   	String nextLine;

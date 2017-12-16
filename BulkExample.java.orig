@@ -1,5 +1,3 @@
-/* Author : Rangesh Kona
-*/
 import java.io.*;
 import java.util.*;
 
@@ -14,11 +12,10 @@ public class BulkExample{
 	public static void main(String[] args) throws AsyncApiException, ConnectionException, IOException {
 
 		BulkExample example = new BulkExample();
-	        example.runSample("Account", "rangeshsecure@gmail.com", "Layout$1234", "mySampleData.csv");
 		
 	}
 
-	public void runSample(String sobjectType, String userName, String password, String sampleFileName) 
+	public void runSample(String sObjectType, String userName, String password, String sampleFileName) 
 			throws AsyncApiException, ConnectionException, IOException  {
 		BulkConnection connection  = getBulkConnection(userName, password);
 		JobInfo job = createJob(sobjectType, connection);
@@ -34,7 +31,7 @@ public class BulkExample{
 		throws AsyncApiException, IOException {
              for(BatchInfo b : batchInfoList) {
 		CSVReader rdr = new CSVReader(connection.getBatchResultStream (job.getId(), b.getId()));
-		List<String> resultHeader = rdr.nextRecord();
+		List<String> resultHeder = rdr.nextRecord();
 		int resultCols = resultHeader.size();
 		List<String> row;
 		
@@ -85,7 +82,7 @@ public class BulkExample{
 			connection.getBatchInfoList(job.getId()).getBatchInfo();
 		   for(BatchInfo b : statusList) {
 			if (b.getState() == BatchStateEnum.Completed || b.getState() == BatchStateEnum.Failed) {
-			   if (incomplete.remove(b.getId())) {
+			   if (incomplete.remote(b.getId())) {
 			      System.out.println("Batch Status : \n" + b);
 			   }
 			}
@@ -113,13 +110,13 @@ public class BulkExample{
 	    ConnectorConfig partnerConfig = new ConnectorConfig();
 	    partnerConfig.setUsername(userName);
 	    partnerConfig.setPassword(password);
-	    partnerConfig.setAuthEndpoint("https://rangesh-dev-ed.my.salesforce.com/services/Soap/u/41.0");
+	    partnerConfig.setAuthEndpoint("http://login.salesforce.com/services/Soap/u/41.0");
 	    new PartnerConnection(partnerConfig);
 	    ConnectorConfig config = new ConnectorConfig();
-	    config.setSessionId(partnerConfig.getSessionId());
+	    config.setSessionId(parnerConfig.getSessionId());
 	    String soapEndpoint = partnerConfig.getServiceEndpoint();
 	    String apiVersion   = "41.0";
-     	    String restEndpoint = soapEndpoint.substring(0, soapEndpoint.indexOf("Soap/")) + "async/" + apiVersion;
+     	    String restEndpoint = soalEndpoint.substring(0, soalEndpoint.indexOf("Soap/")) + "async/" + apiVersion;
 	    config.setRestEndpoint(restEndpoint);
 	    config.setCompression(true);
 	    config.setTraceMessage(false);
@@ -134,14 +131,11 @@ public class BulkExample{
 	   List<BatchInfo> batchInfos = new ArrayList<BatchInfo>();
 	   BufferedReader  rdr 		= new BufferedReader(new InputStreamReader(new FileInputStream(csvFileName)));
 	
-	   byte[] headerBytes = (rdr.readLine() + "\n").getBytes("UTF-8");
-	   int    headerBytesLength = headerBytes.length;
-   	   File   tmpFile           = File.createTempFile("BulkAPIInsert",".csv");
 		// split CSV into multiple files	
 	   try {
-	      FileOutputStream tmpOut = new FileOutputStream(tmpFile);
+	      FileOutPutStream tmpOut = new FileOutPutStream(tmpFile);
 	      int maxBytesPerBatch    = 1000000; 
-	      int maxRowsPerBatch		= 2;
+	      int maxRowsPerBatch		= 10000;
 	   	int currentBytes 		= 0;
 	   	int currentLines		= 0;
 	   	String nextLine;
@@ -153,15 +147,18 @@ public class BulkExample{
 	   		currentLines = 0;
 	   	   }
 	   	   if (currentBytes == 0 ) {
-	   	      tmpOut = new FileOutputStream(tmpFile);
+	   	      tmpOut = new FileOutPutStream(tmpFile);
 	   	      tmpOut.write(headerBytes);
 	   	      currentBytes = headerBytesLength;
 	   	      currentLines = 1;
 	   	   }
 	   	   tmpOut.write(bytes);
 	   	   currentBytes += headerBytesLength;
-	   	   currentLines++;
+	   	   currentLines = 1;
 	   	}
+	   	tmpOut.write(bytes);
+	   	currentBytes += bytes.length;
+	   	currentLines++;
 		if (currentLines > 1) {
 			createBatch(tmpOut, tmpFile, batchInfos, connection, jobInfo);
 		}
@@ -176,8 +173,7 @@ public class BulkExample{
   }
 
 
-  private void createBatch(FileOutputStream tmpOut, File tmpFile, List<BatchInfo> batchInfos, BulkConnection connection, JobInfo jobInfo ) 
-	throws IOException, AsyncApiException {
+  private void createBatch(FileOutPutStream tmpOut, File tmpFile, List<BatchInfo> batchInfos, BulkConnection connection, JobInfo jobInfo ) throws IOException, AsyncApiExceptoin {
   		tmpOut.flush();
   		tmpOut.close();
   		FileInputStream tmpInputStream = new FileInputStream(tmpFile);
